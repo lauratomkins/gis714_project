@@ -10,16 +10,23 @@ import numpy as np
 import os
 import pandas as pd
 import sys
-sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing")
+sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing") # personal computer
+sys.path.append("C:\\Users\\lmtomkin\\Documents\\winter_storms\\PyART-processing") # work computer
 import gen_fun
+import pymap3d as pm
+from scipy.interpolate import griddata
 
 tilt = 0.5
 names = ['KENX', 'KBUF', 'KBGM', 'KTYX']
 date = '20200218'
+center = names[3]
+date = '20200218'
+center_lon = -75.6791; center_lat = 43.7558; center_alt = 567.4;
 
 for iradar in names:
     
-    filepath = "G:\\My Drive\\phd\\plotly\\data\\NEXRAD\\" + iradar + '\\' + date + '\\'
+    #filepath = "G:\\My Drive\\phd\\plotly\\data\\NEXRAD\\" + iradar + '\\' + date + '\\' # personal computer
+    filepath = "Q:\\My Drive\\phd\\plotly\\data\\NEXRAD\\" + iradar + '\\' + date + '\\' # work computer
     
     filelist = gen_fun.get_filelist(filepath, iradar, False)
     
@@ -55,11 +62,22 @@ for iradar in names:
     
         lat = grid.point_latitude['data']
         lon = grid.point_longitude['data']
+        
+        xpts = 2000*np.arange(-400,401,1); ypts = 2000*np.arange(-400,401,1); zpts = np.zeros([1,801]); # array for interpolation
+        #center_lon_rad, center_lat_rad = np.deg2rad([center_lon, center_lat]) # convert center lat/lon to radians
+        
+        [lat_list, lon_list, alt_list] = pm.enu2geodetic(xpts, ypts, zpts, center_lat, center_lon, center_alt)
+        [lon_grid, lat_grid] = np.meshgrid(lon_list, lat_list)
+        
+        rho_grid = griddata((lon.flatten(), lat.flatten()), rho.flatten(), (lon_grid, lat_grid), method='linear')
+        ref_grid = griddata((lon.flatten(), lat.flatten()), ref.flatten(), (lon_grid, lat_grid), method='linear')
+        vel_grid = griddata((lon.flatten(), lat.flatten()), vel.flatten(), (lon_grid, lat_grid), method='linear')
     
-        df = pd.DataFrame({'lat':lat.flatten(), 'lon':lon.flatten(), 'ref':ref.flatten(), 'rho':rho.flatten(), 'vel':vel.flatten()})
+        df = pd.DataFrame({'lat':lat_grid.flatten(), 'lon':lon_grid.flatten(), 'ref':ref_grid.flatten(), 'rho':rho_grid.flatten(), 'vel':vel_grid.flatten()})
         #df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel'])
         
-        savepath = "G:\\My Drive\\phd\\plotly\\data\\pd\\" + iradar + '\\' + date + '\\'
+        #savepath = "G:\\My Drive\\phd\\plotly\\data\\pd_interp\\" + iradar + '\\' + date + '\\' # personal computer
+        savepath = "Q:\\My Drive\\phd\\plotly\\data\\pd_interp\\" + iradar + '\\' + date + '\\' # work computer
         
         if not os.path.exists(savepath):
             os.makedirs(savepath)
