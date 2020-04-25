@@ -57,6 +57,7 @@ def ref_plot(df, save_date, save_flag, image_path, filter_flag, filter_val):
         os.makedirs(savepath)
     
     plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
+    plt.close()
     
 def rho_plot(df, save_date, save_flag, image_path):
     
@@ -90,7 +91,8 @@ def rho_plot(df, save_date, save_flag, image_path):
     if not os.path.exists(savepath):
         os.makedirs(savepath)
     
-    plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
+    plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')  
+    plt.close()
     
 def vel_plot(df, save_date, save_flag, image_path):
     
@@ -124,7 +126,8 @@ def vel_plot(df, save_date, save_flag, image_path):
     if not os.path.exists(savepath):
         os.makedirs(savepath)
     
-    plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
+    plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')   
+    plt.close()
 
 
 def waves_plot(df, save_date, save_flag, image_path):
@@ -159,3 +162,4 @@ def waves_plot(df, save_date, save_flag, image_path):
         os.makedirs(savepath)
     
     plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
+    plt.close()
