@@ -23,7 +23,7 @@ for iradar in names:
     
     print(iradar)
     
-    filepath = "G:\\My Drive\\phd\\plotly\\data\\pd\\" + iradar + '\\' + date + '\\'
+    filepath = "G:\\My Drive\\phd\\plotly\\data\\pd_interp\\" + iradar + '\\' + date + '\\'
     
     filelist = gen_fun.get_filelist(filepath, iradar, False)
     
@@ -49,7 +49,7 @@ for iradar in names:
         
         rad1_waves = rad1.assign(waves = wave_filtered.flatten())
     
-        savepath = "G:\\My Drive\\phd\\plotly\\data\\pd_waves\\" + iradar + '\\' + date + '\\'
+        savepath = "G:\\My Drive\\phd\\plotly\\data\\pd_interp_waves\\" + iradar + '\\' + date + '\\'
         
         if not os.path.exists(savepath):
             os.makedirs(savepath)
