@@ -10,7 +10,7 @@ import numpy as np
 import os
 import pandas as pd
 import sys
-sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing") # personal computer
+#sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing") # personal computer
 sys.path.append("C:\\Users\\lmtomkin\\Documents\\winter_storms\\PyART-processing") # work computer
 import gen_fun
 import pymap3d as pm

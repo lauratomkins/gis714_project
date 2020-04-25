@@ -15,7 +15,7 @@ from datetime import datetime
 import cmocean
 import matplotlib as mpl
 
-def ref_plot(df, save_date, save_flag, filter_flag, filter_val):
+def ref_plot(df, save_date, save_flag, image_path, filter_flag, filter_val):
     
     if filter_flag:
         df.loc[(df['rho_max'] < filter_val) & (df['rho_max'] != 0) & (df['ref_max'] != 0), 'ref_max'] = np.nan
@@ -51,14 +51,14 @@ def ref_plot(df, save_date, save_flag, filter_flag, filter_val):
     #set title
     ax.set_title(datetime.strftime(save_date, "%d %b %Y %H:%M:%S UTC"),fontsize=14, loc='left')
     
-    savepath = "G:\\My Drive\\phd\\plotly\\images\\" + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
+    savepath = image_path + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
         
     if not os.path.exists(savepath):
         os.makedirs(savepath)
     
     plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
     
-def rho_plot(df, save_date, save_flag):
+def rho_plot(df, save_date, save_flag, image_path):
     
     # define figure
     plt.figure(figsize=(9,9*1.91))
@@ -85,14 +85,14 @@ def rho_plot(df, save_date, save_flag):
     #set title
     ax.set_title(datetime.strftime(save_date, "%d %b %Y %H:%M:%S UTC"),fontsize=14, loc='left')
     
-    savepath = "G:\\My Drive\\phd\\plotly\\images\\" + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
+    savepath = image_path + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
         
     if not os.path.exists(savepath):
         os.makedirs(savepath)
     
     plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
     
-def vel_plot(df, save_date, save_flag):
+def vel_plot(df, save_date, save_flag, image_path):
     
     # define figure
     plt.figure(figsize=(9,9*1.91))
@@ -119,7 +119,7 @@ def vel_plot(df, save_date, save_flag):
     #set title
     ax.set_title(datetime.strftime(save_date, "%d %b %Y %H:%M:%S UTC"),fontsize=14, loc='left')
     
-    savepath = "G:\\My Drive\\phd\\plotly\\images\\" + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
+    savepath = image_path + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
         
     if not os.path.exists(savepath):
         os.makedirs(savepath)
@@ -127,7 +127,7 @@ def vel_plot(df, save_date, save_flag):
     plt.savefig(savepath+datetime.strftime(save_date, "%Y%m%d%H%M%S")+'.png',dpi=500,bbox_inches='tight')    
 
 
-def waves_plot(df, save_date, save_flag):
+def waves_plot(df, save_date, save_flag, image_path):
     
     #df.loc[(df['waves_mean'] >= 0.5), 'waves_mean'] = 1
     #df.loc[(df['waves_mean'] < 0.5), 'waves_mean'] = 0
@@ -153,7 +153,7 @@ def waves_plot(df, save_date, save_flag):
     #set title
     ax.set_title(datetime.strftime(save_date, "%d %b %Y %H:%M:%S UTC"),fontsize=14, loc='left')
     
-    savepath = "G:\\My Drive\\phd\\plotly\\images\\" + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
+    savepath = image_path + datetime.strftime(save_date, "%Y%m%d") + '\\' + save_flag + '\\'
         
     if not os.path.exists(savepath):
         os.makedirs(savepath)

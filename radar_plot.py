@@ -8,8 +8,10 @@ Created on Fri Apr 24 11:09:20 2020
 import numpy as np
 import pandas as pd
 import sys
-sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing")
-sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\gis714_project\\")
+#sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing")
+#sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\gis714_project\\")
+sys.path.append("C:\\Users\\lmtomkin\\Documents\\GitHub\\PyART-processing")
+sys.path.append("C:\\Users\\lmtomkin\\Documents\\GitHub\\gis714_project\\")
 import gen_fun
 from datetime import datetime
 import os
@@ -21,13 +23,16 @@ center = names[3]
 date = '20200218'
 center_lon = -75.6791; center_lat = 43.7558; center_alt = 567.4;
 
+#GDrive = "G:\\My Drive\\" # personal computer
+GDrive = "Q:\\My Drive\\" # personal computer
+
 # Set plotting flags and muting threshold
 plot_ref = True; plot_rho = True; plot_vel = True; plot_waves = True;
 mute_ref = True
 mute_thres = 0.9
 
 # Set center radar paths, list, and dates
-center_path = "G:\\My Drive\\phd\\plotly\\data\\pd_interp_waves\\" + center + '\\' + date + '\\'
+center_path = GDrive + "\\phd\\plotly\\data\\pd_interp_waves\\" + center + '\\' + date + '\\'
 center_list = gen_fun.get_filelist(center_path, center, False)
 center_date = [datetime.strptime(date + i[13:19], "%Y%m%d%H%M%S") for i in center_list] # extract dates from filename
 
@@ -39,7 +44,7 @@ remain_dates = {} # define empty dict to store times
 # loop through non-center radar to get list of dates
 for iremain in names:
     
-    filepath = "G:\\My Drive\\phd\\plotly\\data\\pd_interp_waves\\" + iremain + '\\' + date + '\\'
+    filepath = GDrive + "\\phd\\plotly\\data\\pd_interp_waves\\" + iremain + '\\' + date + '\\'
     filelist = gen_fun.get_filelist(filepath, iremain, False)    
     filelists[iremain] = filelist # populate dictionary with filepaths
     filedate = [datetime.strptime(date + i[13:19], "%Y%m%d%H%M%S") for i in filelist]
@@ -59,7 +64,7 @@ for itime in np.arange(len(center_date)):
         time_diff = [abs(center_date[itime] - idate) for idate in remain_dates[iradar]]
         min_idx, min_diff = min(enumerate(time_diff))
         
-        filepath = "G:\\My Drive\\phd\\plotly\\data\\pd_interp_waves\\" + iradar + '\\' + date + '\\'
+        filepath = GDrive + "\\phd\\plotly\\data\\pd_interp_waves\\" + iradar + '\\' + date + '\\'
         fullpaths.append(filepath + filelists[iradar][min_idx]) # full path of matching time
         
     # concatenate each into large pandas array    
@@ -75,18 +80,20 @@ for itime in np.arange(len(center_date)):
     
     #filtered.loc[(filtered['rho_max'] < mute_thres) & (filtered['rho_max'] != 0) & (filtered['ref_max'] != 0), 'ref_max'] = np.nan
 
-    pklpath = "G:\\My Drive\\phd\\plotly\\data\\pd_stitched\\" + iradar + '\\' + date + '\\'
+    pklpath = GDrive + "\\phd\\plotly\\data\\pd_stitched\\" + iradar + '\\' + date + '\\'
         
     if not os.path.exists(pklpath):
         os.makedirs(pklpath)
         
     filtered.to_pickle(pklpath + center_list[itime])
     
-    plotter.ref_plot(filtered, center_date[itime], 'ref', mute_ref, mute_thres)
-    plotter.ref_plot(filtered, center_date[itime], 'ref', False, 'N/A')
-    plotter.rho_plot(filtered, center_date[itime], 'rho')
-    plotter.vel_plot(filtered, center_date[itime], 'vel')
-    plotter.waves_plot(filtered, center_date[itime], 'waves')
+    image_path = GDrive + "\\phd\\plotly\\images\\"
+    
+    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, mute_thres)
+    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, False, 'N/A')
+    plotter.rho_plot(filtered, center_date[itime], 'rho', image_path)
+    plotter.vel_plot(filtered, center_date[itime], 'vel', image_path)
+    plotter.waves_plot(filtered, center_date[itime], 'waves', image_path)
 #    plt.figure(figsize=(9,9*1.91))
 #    ax = plt.axes(projection=ccrs.PlateCarree()) #make the map axis
 #    ax.add_feature(cfeature.STATES.with_scale('50m'),edgecolor='black',lw=0.25) #add US states
