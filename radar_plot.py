@@ -89,8 +89,8 @@ for itime in np.arange(len(center_date)):
     
     image_path = GDrive + "\\phd\\plotly\\images\\"
     
-    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, mute_thres)
     plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, False, 'N/A')
+    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, mute_thres)
     plotter.rho_plot(filtered, center_date[itime], 'rho', image_path)
     plotter.vel_plot(filtered, center_date[itime], 'vel', image_path)
     plotter.waves_plot(filtered, center_date[itime], 'waves', image_path)
