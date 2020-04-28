@@ -10,7 +10,7 @@ import pandas as pd
 import sys
 #sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\PyART-processing")
 #sys.path.append("C:\\Users\\laura\\Documents\\GitHub\\gis714_project\\")
-sys.path.append("C:\\Users\\lmtomkin\\Documents\\GitHub\\PyART-processing")
+sys.path.append("C:\\Users\\lmtomkin\\Documents\\winter_storms\\PyART-processing") # work computer
 sys.path.append("C:\\Users\\lmtomkin\\Documents\\GitHub\\gis714_project\\")
 import gen_fun
 from datetime import datetime
@@ -62,7 +62,7 @@ for itime in np.arange(len(center_date)):
     for iradar in names:
         
         time_diff = [abs(center_date[itime] - idate) for idate in remain_dates[iradar]]
-        min_idx, min_diff = min(enumerate(time_diff))
+        min_idx = time_diff.index(min(time_diff))
         
         filepath = GDrive + "\\phd\\plotly\\data\\pd_interp_waves\\" + iradar + '\\' + date + '\\'
         fullpaths.append(filepath + filelists[iradar][min_idx]) # full path of matching time
