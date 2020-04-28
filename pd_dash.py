@@ -11,7 +11,7 @@ from dash.dependencies import Input, Output
 import dash_html_components as html
 import dash_core_components as dcc
 import numpy as np
-
+import os
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -20,9 +20,11 @@ external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # Boostrap CSS for styling.
 #app.css.append_css({'external_url': 'https://codepen.io/amyoshino/pen/jzXypZ.css'})
 
-df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+filepath = 'G://My Drive//phd//plotly//data//pd_waves//KTYX//20200218//'
+filelist = os.listdir(filepath)
+
+df = pd.read_pickle(filepath + filelist[0])
 df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
-df['marker_size'] = 0.01
 
 # Mapbox API key
 # Insert your key below.
@@ -36,14 +38,14 @@ fig = px.scatter_mapbox(
     color_continuous_scale=px.colors.sequential.Magma[::-1], 
     zoom=4, 
     opacity=0.8,
-    #title="Reflectivity [dBZ]",
     range_color=[0,40])
 #fig.update_traces(marker_size=0.5)
 fig.update_layout(
+    title="Reflectivity [dBZ]",
     autosize=True,
     height=800,
     margin=dict(
-        l=35, r=35, b=35, t=15),
+        l=35, r=35, b=35, t=25),
     hovermode="closest",
     mapbox=dict(
         accesstoken=mapbox_access_token,
@@ -59,16 +61,17 @@ fig2 = px.scatter_mapbox(
     lat='lat', 
     lon='lon', 
     color='rho', 
-    color_continuous_scale=px.colors.sequential.ice[::-1], 
+    color_continuous_scale=px.colors.sequential.deep, 
     zoom=4, 
     opacity=0.8,
     #title="rhoHV",
-    range_color=[0.7,1])
+    range_color=[0.8,1])
 fig2.update_layout(
+    title='rhoHV',
     autosize=True,
     height=800,
     margin=dict(
-        l=35, r=35, b=35, t=15),
+        l=35, r=35, b=35, t=25),
     hovermode="closest",
     mapbox=dict(
         accesstoken=mapbox_access_token,
@@ -81,10 +84,21 @@ fig2.update_layout(
 
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.title = 'Radar Test'
+app.title = 'Radar Image Muting'
 app.layout = html.Div([
+    html.H1(children='Radar Image Muting'),
+    html.H2(children='GIS715 Class Project, Spring 2020'),
     html.Div([
-        html.Div([html.Label(["Use slider to mute reflectivity"]),dcc.Slider(
+        html.Div([html.Label(["Select file"]),dcc.Dropdown(
+                    id="file-selector",
+                    options=[
+                        {'label': i, 'value': i} for i in filelist
+                    ],
+                    value = filelist[0]
+                    )], style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),
+    ],  style={'padding':10},className = "row"),
+    html.Div([
+        html.Div([html.Label(["Select rhoHV threshold to 'mute' reflectivity"]),dcc.Slider(
                     id="threshold-slider",
                     min=0.5,
                     max=1,
@@ -94,7 +108,7 @@ app.layout = html.Div([
                         i: '{:1.2f}'.format(i) for i in np.arange(0.5,1.05,0.05)
                     },
                     )], style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),
-        html.Div([html.Label(["Select variable"]),dcc.Dropdown(
+        html.Div([html.Label(["Select secondary variable to plot"]),dcc.Dropdown(
                     id='variable-checklist',
                     options=[
                         {'label': 'Correlation Coefficient', 'value': 'rho'},
@@ -102,8 +116,7 @@ app.layout = html.Div([
                         {'label': 'Velocity', 'value': 'vel'}
                     ],
                     value= 'rho',
-                    )],style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),
-        
+                    )],style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),    
     ],  style={'padding':10},className = "row"),
     html.Div([
         html.Div(dcc.Graph(id = "ref_map", figure=fig), style={'padding':10},className = "six columns"),
@@ -112,17 +125,24 @@ app.layout = html.Div([
 ])
 
 @app.callback(Output('rho-vel_map', "figure"),
-            [Input('variable-checklist', 'value')])
-def update_graph(value):
-    df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+            [Input('variable-checklist', 'value'),
+            Input('file-selector', 'value')])
+def update_graph(variable_value, file_value):
+    df = pd.read_pickle(filepath + file_value)
     df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
 
-    if value == 'rho':
-        rng = [0.7,1]
-        cb = px.colors.sequential.ice[::-1]
+    if variable_value == 'rho':
+        rng = [0.8,1]
+        cb = px.colors.sequential.deep
         title_label='rhoHV'
 
-    elif value == 'vel':
+    elif variable_value == 'waves':
+        df = df[df['waves']==1]
+        cb = px.colors.sequential.gray[::-1]
+        rng = [0,1]
+        title_label = 'Waves'
+
+    elif variable_value == 'vel':
         rng = [-30, 30]
         cb = px.colors.sequential.RdBu[::-1]
         title_label="Velocity [m/s]"
@@ -131,20 +151,17 @@ def update_graph(value):
         df, 
         lat='lat', 
         lon='lon', 
-        color=value, 
+        color=variable_value, 
         color_continuous_scale=cb, 
         zoom=4, 
         opacity=0.8,
-        #title=title_label,
         range_color=rng)
     fig.update_layout(
+        title=title_label,
         autosize=True,
         height=800,
         margin=dict(
-            l=35,
-            r=35,
-            b=35,
-            t=15
+            l=35, r=35, b=35, t=25
             ),
         hovermode="closest",
         mapbox=dict(
@@ -159,13 +176,14 @@ def update_graph(value):
     return fig
 
 @app.callback(Output('ref_map', "figure"),
-            [Input('threshold-slider', 'value')])
-def update_graph2(value):
-    df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+            [Input('threshold-slider', 'value'),
+            Input('file-selector', 'value')])
+def update_graph2(threshold_value, file_value):
+    df = pd.read_pickle(filepath + file_value)
     df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
 
     temp = df
-    temp.loc[df['rho'] < value, 'ref'] = np.nan
+    temp.loc[df['rho'] < threshold_value, 'ref'] = np.nan
 
     fig = px.scatter_mapbox(
         temp, 
@@ -175,17 +193,14 @@ def update_graph2(value):
         color_continuous_scale=px.colors.sequential.Magma[::-1], 
         zoom=4, 
         opacity=0.8,
-        #title="Reflectivity [dBZ]",
         range_color=[0,40])
     #fig.update_traces(marker_size=0.5)
     fig.update_layout(
+        title="Reflectivity [dBZ]",
         autosize=True,
         height=800,
         margin=dict(
-            l=35,
-            r=35,
-            b=35,
-            t=15
+            l=35, r=35,b=35,t=25
             ),
         hovermode="closest",
         mapbox=dict(
