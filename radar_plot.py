@@ -27,9 +27,9 @@ center_lon = -75.6791; center_lat = 43.7558; center_alt = 567.4;
 GDrive = "Q:\\My Drive\\" # personal computer
 
 # Set plotting flags and muting threshold
-plot_ref = True; plot_rho = True; plot_vel = True; plot_waves = True;
+plot_ref = True; plot_rho = False; plot_vel = False; plot_waves = False;
 mute_ref = True
-mute_thres = 0.9
+mute_thres = 0.95
 
 # Set center radar paths, list, and dates
 center_path = GDrive + "\\phd\\plotly\\data\\pd_interp_waves\\" + center + '\\' + date + '\\'
@@ -89,11 +89,11 @@ for itime in np.arange(len(center_date)):
     
     image_path = GDrive + "\\phd\\plotly\\images\\"
     
-    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, mute_thres)
-    plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, False, 'N/A')
-    plotter.rho_plot(filtered, center_date[itime], 'rho', image_path)
-    plotter.vel_plot(filtered, center_date[itime], 'vel', image_path)
-    plotter.waves_plot(filtered, center_date[itime], 'waves', image_path)
+    if plot_ref and mute_ref: plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, mute_thres)
+    if plot_ref and not mute_ref: plotter.ref_plot(filtered, center_date[itime], 'ref', image_path, mute_ref, 'N/A')
+    if plot_rho: plotter.rho_plot(filtered, center_date[itime], 'rho', image_path)
+    #plotter.vel_plot(filtered, center_date[itime], 'vel', image_path)
+    if plot_waves: plotter.waves_plot(filtered, center_date[itime], 'waves', image_path)
 #    plt.figure(figsize=(9,9*1.91))
 #    ax = plt.axes(projection=ccrs.PlateCarree()) #make the map axis
 #    ax.add_feature(cfeature.STATES.with_scale('50m'),edgecolor='black',lw=0.25) #add US states

@@ -14,12 +14,15 @@ import numpy as np
 
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 # Boostrap CSS for styling.
 #app.css.append_css({'external_url': 'https://codepen.io/amyoshino/pen/jzXypZ.css'})
 
 df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
+df['marker_size'] = 0.01
 
 # Mapbox API key
 # Insert your key below.
@@ -32,7 +35,10 @@ fig = px.scatter_mapbox(
     color='ref', 
     color_continuous_scale=px.colors.sequential.Magma[::-1], 
     zoom=4, 
+    opacity=0.8,
+    #title="Reflectivity [dBZ]",
     range_color=[0,40])
+#fig.update_traces(marker_size=0.5)
 fig.update_layout(
     autosize=True,
     height=800,
@@ -55,7 +61,9 @@ fig2 = px.scatter_mapbox(
     color='rho', 
     color_continuous_scale=px.colors.sequential.ice[::-1], 
     zoom=4, 
-    range_color=[0.5,1])
+    opacity=0.8,
+    #title="rhoHV",
+    range_color=[0.7,1])
 fig2.update_layout(
     autosize=True,
     height=800,
@@ -76,44 +84,48 @@ app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
 app.title = 'Radar Test'
 app.layout = html.Div([
     html.Div([
-        html.Div(dcc.Dropdown(
-                    id='variable-checklist',
-                    options=[
-                        {'label': 'Correlation Coefficient', 'value': 'rho'},
-                        {'label': 'Velocity', 'value': 'vel'}
-                    ],
-                    value= 'rho'
-                    ), className = "two columns"),
-        
-    ], className = "row"),
-    html.Div([
-        html.Div(dcc.Slider(
+        html.Div([html.Label(["Use slider to mute reflectivity"]),dcc.Slider(
                     id="threshold-slider",
                     min=0.5,
                     max=1,
-                    step=0.05,
+                    step=0.01,
                     value=0,
                     marks={
                         i: '{:1.2f}'.format(i) for i in np.arange(0.5,1.05,0.05)
-                    }
-        ), className='two columns'),
-        html.Div(dcc.Graph(id = "ref_map", figure=fig), className = "five columns"),
-        html.Div(dcc.Graph(id = "rho-vel_map", figure=fig2), className = "five columns")
-    ], className = 'row')    
+                    },
+                    )], style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),
+        html.Div([html.Label(["Select variable"]),dcc.Dropdown(
+                    id='variable-checklist',
+                    options=[
+                        {'label': 'Correlation Coefficient', 'value': 'rho'},
+                        {'label': 'Waves', 'value': 'waves'},
+                        {'label': 'Velocity', 'value': 'vel'}
+                    ],
+                    value= 'rho',
+                    )],style={'padding':10,'backgroundColor':'transparent'},className = "six columns"),
+        
+    ],  style={'padding':10},className = "row"),
+    html.Div([
+        html.Div(dcc.Graph(id = "ref_map", figure=fig), style={'padding':10},className = "six columns"),
+        html.Div(dcc.Graph(id = "rho-vel_map", figure=fig2), style={'padding': 10},className = "six columns")
+    ], style={'padding':10},className = 'row')    
 ])
 
 @app.callback(Output('rho-vel_map', "figure"),
             [Input('variable-checklist', 'value')])
 def update_graph(value):
     df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+    df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
 
     if value == 'rho':
-        rng = [0.5,1]
+        rng = [0.7,1]
         cb = px.colors.sequential.ice[::-1]
+        title_label='rhoHV'
 
     elif value == 'vel':
         rng = [-30, 30]
         cb = px.colors.sequential.RdBu[::-1]
+        title_label="Velocity [m/s]"
 
     fig = px.scatter_mapbox(
         df, 
@@ -122,6 +134,8 @@ def update_graph(value):
         color=value, 
         color_continuous_scale=cb, 
         zoom=4, 
+        opacity=0.8,
+        #title=title_label,
         range_color=rng)
     fig.update_layout(
         autosize=True,
@@ -148,6 +162,7 @@ def update_graph(value):
             [Input('threshold-slider', 'value')])
 def update_graph2(value):
     df = pd.read_pickle('G://My Drive//phd//plotly//data//pd//KTYX//20200218//KTYX20200218_050127_V06.pkl')
+    df = df.dropna(axis=0, how='all', subset=['ref', 'rho', 'vel']) # if all values are NaN then remove that row
 
     temp = df
     temp.loc[df['rho'] < value, 'ref'] = np.nan
@@ -159,7 +174,10 @@ def update_graph2(value):
         color='ref', 
         color_continuous_scale=px.colors.sequential.Magma[::-1], 
         zoom=4, 
+        opacity=0.8,
+        #title="Reflectivity [dBZ]",
         range_color=[0,40])
+    #fig.update_traces(marker_size=0.5)
     fig.update_layout(
         autosize=True,
         height=800,
