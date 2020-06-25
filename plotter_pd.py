@@ -15,7 +15,7 @@ from datetime import datetime
 import cmocean
 import matplotlib as mpl
 
-def ref_plot(df, save_date, save_flag, image_path, plot_bounds, filter_flag, filter_val):
+def ref_plot(df, save_date, save_flag, image_path, filter_flag, filter_val):
     
     if filter_flag:
         df.loc[(df['rho_max'] < filter_val) & (df['rho_max'] != 0) & (df['ref_max'] != 0), 'ref_max'] = np.nan
@@ -30,22 +30,22 @@ def ref_plot(df, save_date, save_flag, image_path, plot_bounds, filter_flag, fil
     ax.add_feature(cartopy.feature.LAND.with_scale('50m'), edgecolor='black',lw=0.25,facecolor='#e0e0e0') #add land with grey face
     ax.add_feature(cartopy.feature.LAKES.with_scale('50m'), edgecolor='black',zorder=0, lw=0.25,facecolor=[1,1,1])#add lakes
     # plot the radar data
-    pm2 = ax.scatter(df.lon[df.ref!=0], df.lat[df.ref!=0], c=df.ref[df.ref!=0],s=0.5,vmin=0,vmax=40,cmap="magma_r")
+    pm2 = ax.scatter(df.lon[df.ref_max!=0], df.lat[df.ref_max!=0], c=df.ref_max[df.ref_max!=0],s=0.5,vmin=0,vmax=40,cmap="magma_r")
     try: 
-        ax.scatter(df[df['ref'].isnull()].lon, df[df['ref'].isnull()].lat, c='#666666', s=0.2)
+        ax.scatter(df[df['ref_max'].isnull()].lon, df[df['ref_max'].isnull()].lat, c='#666666', s=0.2)
     except:
         print('No NaN values to mask')
     #set the ticks
-    ax.set_xticks(np.arange(-84, -60, 2), crs=ccrs.PlateCarree())
-    ax.set_yticks(np.arange(38, 50, 2), crs=ccrs.PlateCarree())
+    ax.set_xticks(np.arange(-84, -68, 2), crs=ccrs.PlateCarree())
+    ax.set_yticks(np.arange(38, 46, 2), crs=ccrs.PlateCarree())
     lon_formatter = LongitudeFormatter(zero_direction_label=True)
     lat_formatter = LatitudeFormatter()
     ax.xaxis.set_major_formatter(lon_formatter)
     ax.yaxis.set_major_formatter(lat_formatter)  
     #set the bounds of the map
-    ax.set_extent(plot_bounds)
+    ax.set_extent([-83,-69.5,39,45.5])
     #Add GMI colorbar
-    cbar = plt.colorbar(pm2,shrink=0.3, extend='max')
+    cbar = plt.colorbar(pm2,shrink=0.2, extend='max')
     cbar.set_label('Reflectivity $[dBZ]$',fontsize=14)
     cbar.ax.tick_params(labelsize=12)
     #set title

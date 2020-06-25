@@ -27,7 +27,7 @@ center_lon = -75.6791; center_lat = 43.7558; center_alt = 567.4;
 GDrive = "Q:\\My Drive\\" # personal computer
 
 # Set plotting flags and muting threshold
-plot_ref = True; plot_rho = False; plot_vel = False; plot_waves = False;
+plot_ref = False; plot_rho = True; plot_vel = False; plot_waves = False;
 mute_ref = True
 mute_thres = 0.95
 
